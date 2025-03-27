@@ -1,0 +1,16 @@
+def scrape_craigslist(search_term="comic books", location="sfbay"):
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    base_url = f"https://{location}.craigslist.org/search/sss?query={search_term.replace(' ', '+')}"
+    response = requests.get(base_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    listings = []
+    for post in soup.find_all('li', class_='result-row')[:10]:
+        title = post.find('a', class_='result-title').text
+        price = post.find('span', class_='result-price')
+        price = price.text if price else "N/A"
+        url = post.find('a', class_='result-title')['href']
+        listings.append({"title": title, "price": price, "url": url})
+    return listings
